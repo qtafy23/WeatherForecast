@@ -1,0 +1,9 @@
+# File for settings the default backend
+[default]
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+ALLOWED_HOSTS = ['*']
+STATIC_URL = '/static/'
+USE_I18N = true
+USE_TZ = true
+DEBUG = true
