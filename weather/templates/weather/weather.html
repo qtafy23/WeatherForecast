@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Forecast</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e0f7fa;
+            color: #004d40;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        header button {
+            display: block;
+            background: #004d40;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        header button:hover {
+            background: #00796b;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #004d40;
+            border-radius: 4px;
+            outline: none;
+            font-size: 14px;
+        }
+        input {
+            width: calc(100% - 122px);
+        }
+        button {
+            background: #004d40;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #00796b;
+        }
+        .weather-info {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        table, th, td {
+            border: 1px solid #004d40;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #004d40;
+            color: #ffffff;
+        }
+        tr:nth-child(even) {
+            background: #e0f2f1;
+        }
+        tr:nth-child(odd) {
+            background: #ffffff;
+        }
+        .new-search {
+            margin-top: 20px;
+            display: none;
+        }
+        .new-search.active {
+            display: block;
+        }
+        .search-container {
+            display: block;
+        }
+    </style>
+    <!-- Добавление jQuery и jQuery UI -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+</head>
+<body>
+    <header>
+        <button id="header">Weather Forecast</button>
+        <button id="loadLastCityButton">Load Last City</button>
+    </header>
+    <div class="container">
+        <h1>Weather Forecast</h1>
+        <div id="searchContainer" class="search-container">
+            <form id="cityForm">
+                <input type="text" id="cityInput" placeholder="Enter city name" required>
+                <button type="submit">Get Weather</button>
+            </form>
+        </div>
+        <div class="weather-info" id="weatherInfo"></div>
+        <div class="new-search" id="newSearch">
+            <button id="newCityButton">Search New City</button>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            $("#cityInput").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "/city-autocomplete/",
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#cityInput').val(ui.item.value);
+                    return false;
+                }
+            });
+        });
+
+        function fetchWeather(city) {
+            fetch(`/weather/${city}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const weatherInfo = document.getElementById('weatherInfo');
+                    if (!data.error) {
+                        let table = `<h2>Weather in ${city}</h2><table><tr><th>Time</th><th>Temperature (°C)</th><th>Precipitation (mm)</th><th>Wind Speed (m/s)</th></tr>`;
+                        for (let i = 0; i < 24; i++) {
+                            table += `<tr><td>${new Date(data.hourly.time[i]).toLocaleTimeString()}</td><td>${data.hourly.temperature_2m[i]}</td><td>${data.hourly.precipitation[i]}</td><td>${data.hourly.windspeed_10m[i]}</td></tr>`;
+                        }
+                        table += `</table>`;
+                        weatherInfo.innerHTML = table;
+                        document.getElementById('newSearch').classList.add('active');
+                        document.getElementById('searchContainer').style.display = 'none';
+                    } else {
+                        weatherInfo.innerHTML = `<p>${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('weatherInfo').innerHTML = `<p>Failed to retrieve weather data.</p>`;
+                });
+        }
+
+        document.getElementById('cityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const city = document.getElementById('cityInput').value;
+            fetchWeather(city);
+        });
+
+        document.getElementById('newCityButton').addEventListener('click', function() {
+            document.getElementById('cityInput').value = '';
+            document.getElementById('weatherInfo').innerHTML = '';
+            document.getElementById('newSearch').classList.remove('active');
+            document.getElementById('searchContainer').style.display = 'block';
+        });
+
+        document.getElementById('loadLastCityButton').addEventListener('click', function() {
+            fetch('/last-city/')
+                .then(response => response.json())
+                .then(data => {
+                    const lastCity = data.last_city;
+                    if (lastCity) {
+                        document.getElementById('cityInput').value = lastCity;
+                        fetchWeather(lastCity);
+                    } else {
+                        alert('No previous city found.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        document.getElementById('header').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
