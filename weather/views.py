@@ -32,6 +32,7 @@ class WeatherTemplateView(TemplateView):
 
 class WeatherView(APIView):
     def get(self, request, city):
+        request.session['last_city'] = city
         user = request.user
         if user.is_authenticated:
             history, created = SearchHistory.objects.get_or_create(user=user, city=city)
@@ -58,3 +59,10 @@ class WeatherView(APIView):
             return Response({"error": weather_response['reason']}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(weather_response, status=status.HTTP_200_OK)
+
+
+class LastCityView(APIView):
+    def get(self, request):
+        last_city = request.session.get('last_city', None)
+        return Response({'last_city': last_city}, status=status.HTTP_200_OK)
+
