@@ -14,6 +14,21 @@
             align-items: center;
             height: 100vh;
         }
+        header button {
+            display: block;
+            background: #004d40;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        header button:hover {
+            background: #00796b;
+        }
         .container {
             max-width: 800px;
             width: 90%;
@@ -85,6 +100,10 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 </head>
 <body>
+    <header>
+        <button id="header">Weather Forecast</button>
+        <button id="loadLastCityButton">Load Last City</button>
+    </header>
     <div class="container">
         <h1>Weather Forecast</h1>
         <div id="searchContainer" class="search-container">
@@ -92,7 +111,6 @@
                 <input type="text" id="cityInput" placeholder="Enter city name" required>
                 <button type="submit">Get Weather</button>
             </form>
-            <button id="loadLastCityButton">Load Last City</button>
         </div>
         <div class="weather-info" id="weatherInfo"></div>
         <div class="new-search" id="newSearch">
@@ -174,6 +192,10 @@
                 .catch(error => {
                     console.error('Error:', error);
                 });
+        });
+
+        document.getElementById('header').addEventListener('click', function() {
+            window.location.href = '/';
         });
     </script>
 </body>

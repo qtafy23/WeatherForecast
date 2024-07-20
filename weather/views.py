@@ -18,11 +18,29 @@ def city_autocomplete(request):
     if 'term' in request.GET:
         term = request.GET.get('term')
         geocode_url = f"http://api.openweathermap.org/geo/1.0/direct?q={term}&limit=5&appid={settings.OPENWEATHER_API_KEY}"
-        geocode_response = requests.get(geocode_url).json()
-        suggestions = []
-        for result in geocode_response:
-            suggestions.append(f"{result['name']}, {result['country']}")
-        return JsonResponse(suggestions, safe=False)
+
+        try:
+            # Выполнение запроса к API
+            geocode_response = requests.get(geocode_url).json()
+            suggestions = []
+
+            # Проверка, что ответ является списком
+            if isinstance(geocode_response, list):
+                for result in geocode_response:
+                    if isinstance(result, dict):
+                        city_name = result.get('name', '')
+                        country = result.get('country', '')
+                        if city_name and country:
+                            suggestions.append(f"{city_name}, {country}")
+            else:
+                # Обработка неожидаемого формата ответа
+                return JsonResponse({"error": "Неожиданный формат ответа"}, status=status.HTTP_400_BAD_REQUEST)
+
+            return JsonResponse(suggestions, safe=False)
+        except requests.RequestException as e:
+            # Обработка ошибки запроса
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     return JsonResponse([], safe=False)
 
 
@@ -37,6 +55,7 @@ class WeatherView(APIView):
         if user.is_authenticated:
             history, created = SearchHistory.objects.get_or_create(user=user, city=city)
             if not created:
+                print(history)
                 history.search_count += 1
                 history.save()
 
