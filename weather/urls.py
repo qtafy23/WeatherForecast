@@ -1,11 +1,10 @@
 from django.urls import path
-from .views import WeatherView, home, city_autocomplete, some_view
-
+from .views import WeatherView, WeatherTemplateView, city_autocomplete
 
 app_name = 'Weather'
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', WeatherTemplateView.as_view(), name='weather_view'),
     path('weather/<str:city>/', WeatherView.as_view(), name='weather'),
     path('city-autocomplete/', city_autocomplete, name='city-autocomplete'),
 ]

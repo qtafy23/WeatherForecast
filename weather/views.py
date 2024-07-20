@@ -1,5 +1,6 @@
 import logging
 import requests
+from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +12,18 @@ from weatherforecast import settings
 
 
 logger = logging.getLogger(__name__)
+
+
+def city_autocomplete(request):
+    if 'term' in request.GET:
+        term = request.GET.get('term')
+        geocode_url = f"http://api.openweathermap.org/geo/1.0/direct?q={term}&limit=5&appid={settings.OPENWEATHER_API_KEY}"
+        geocode_response = requests.get(geocode_url).json()
+        suggestions = []
+        for result in geocode_response:
+            suggestions.append(f"{result['name']}, {result['country']}")
+        return JsonResponse(suggestions, safe=False)
+    return JsonResponse([], safe=False)
 
 
 class WeatherTemplateView(TemplateView):
