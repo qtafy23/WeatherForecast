@@ -7,3 +7,5 @@ STATIC_URL = '/static/'
 USE_I18N = true
 USE_TZ = true
 DEBUG = true
+GEC_URL = 'http://api.openweathermap.org/geo/1.0/direct?'
+WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude'
