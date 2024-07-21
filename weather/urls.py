@@ -3,6 +3,7 @@ from .views import (
     WeatherView, WeatherTemplateView, city_autocomplete, LastCityView
 )
 
+
 app_name = 'Weather'
 
 urlpatterns = [

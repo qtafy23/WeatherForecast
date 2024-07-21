@@ -9,6 +9,7 @@ class SearchHistoryAdmin(admin.ModelAdmin):
     list_filter = ('city', 'last_searched')
     ordering = ('-last_searched',)
 
+
 @admin.register(UserSearchHistory)
 class UserSearchHistoryAdmin(admin.ModelAdmin):
     list_display = ('user', 'city', 'search_count')
