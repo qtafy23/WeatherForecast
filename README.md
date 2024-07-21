@@ -29,7 +29,7 @@ source venv/scripts/activate
 pip install -r requirements.txt
 ```
 
-##### Перейти в директорию config и создать файл .secrets.toml на подобии .secrets.example.toml
+##### Перейти в директорию config и заполнить файл .secrets.toml
 
 ```
 cd config/
@@ -65,6 +65,4 @@ python manage.py runserver
 ```
 Django 4.2.14
 Django REST Framework 3.14.0
-djangorestframework-simplejwt 5.3.1
-Djoser 2.2.3
 ```
